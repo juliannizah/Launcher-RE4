@@ -4,14 +4,14 @@ SetWorkingDir %A_ScriptDir%
 
 ; Fungsi untuk memeriksa pembaruan
 CheckForUpdates() {
-    versionURL := "https://raw.githubusercontent.com/juliannizah/Launcher-RE4/main/_JulianNizah_/version.txt"
+    versionURL := "https://raw.githubusercontent.com/juliannizah/Launcher-RE4/main/_JulianNizah_/settings.ini"
     updateURL := "https://github.com/juliannizah/Launcher-RE4/releases/download/RE4/update.zip"
     
-    ; Mendapatkan versi terbaru dari URL
-    UrlDownloadToFile, %versionURL%, version.txt
+    ; Mendownload file versi terbaru
+    UrlDownloadToFile, %versionURL%, settings.ini
     
     ; Membaca versi terbaru dari file
-    FileRead, latestVersion, version.txt
+    IniRead, latestVersion, settings.ini, General, VersionLauncher
     
     ; Membandingkan versi terbaru dengan versi saat ini
     if (latestVersion = version) {

@@ -40,7 +40,7 @@ CheckForUpdates() {
 		MsgBox, % "Pembaruan telah selesai."
 
         ; Jalankan kembali aplikasi yang telah diperbarui
-        Run, RE4Launcher.ahk
+        Run, RE4Launcher.exe
         ExitApp
     }
 }

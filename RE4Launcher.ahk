@@ -2,6 +2,41 @@
 SendMode Input
 SetWorkingDir %A_ScriptDir%
 
+; Fungsi untuk memeriksa pembaruan
+CheckForUpdates() {
+    versionURL := "https://raw.githubusercontent.com/juliannizah/Launcher-RE4/tree/main/_JulianNizah_/version.txt"
+    updateURL := "https://github.com/juliannizah/Launcher-RE4/releases/download/RE4/update.zip"
+    
+    ; Mendapatkan versi terbaru dari URL
+    UrlDownloadToFile, %versionURL%, version.txt
+    
+    ; Membaca versi terbaru dari file
+    FileReadLine, latestVersion, version.txt
+    
+    ; Membandingkan versi terbaru dengan versi saat ini
+    if (latestVersion > version) {
+        MsgBox, % "Tersedia pembaruan versi " . latestVersion . ". Aplikasi akan diperbarui."
+        
+        ; Menutup aplikasi sebelum melakukan pembaruan
+        Process, Close, ahk_exe %A_ScriptFullPath%
+        
+        ; Unduh file pembaruan
+        UrlDownloadToFile, %updateURL%, update.zip
+        
+        ; Ekstrak file pembaruan
+        FileExtract, update.zip, A_ScriptDir . "\_JulianNizah_"
+        
+        ; Jalankan kembali aplikasi yang telah diperbarui
+        Run, RE4Launcher.ahk
+        ExitApp
+    } else {
+        MsgBox, Tidak ada pembaruan tersedia.
+    }
+}
+
+; Panggil fungsi CheckForUpdates saat aplikasi dimulai
+CheckForUpdates()
+
 ; Mengatur jalur direktori tujuan dan symlink
 saveGameDir := A_ScriptDir . "\_JulianNizah_\SaveGame"
 targetDir := "%PUBLIC%\Documents\EMPRESS\2050650\remote\2050650\remote\win64_save"

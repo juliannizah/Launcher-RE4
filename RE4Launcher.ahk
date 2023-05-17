@@ -11,7 +11,7 @@ CheckForUpdates() {
     UrlDownloadToFile, %versionURL%, version.txt
     
     ; Membaca versi terbaru dari file
-    FileRead, latestVersion, %A_ScriptDir%\_JulianNizah_\version.txt
+    FileRead, latestVersion, %A_ScriptDir%\version.txt
     
     ; Membandingkan versi terbaru dengan versi saat ini
     if (latestVersion > version) {

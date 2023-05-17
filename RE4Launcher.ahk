@@ -2,47 +2,54 @@
 SendMode Input
 SetWorkingDir %A_ScriptDir%
 
-; Fungsi untuk memeriksa pembaruan
 CheckForUpdates() {
     versionURL := "https://raw.githubusercontent.com/juliannizah/Launcher-RE4/main/_JulianNizah_/settings.ini"
     updateURL := "https://github.com/juliannizah/Launcher-RE4/releases/download/RE4/update.zip"
-    
-    ; Mendownload file versi terbaru
-    updateFilePath := A_ScriptDir . "\_JulianNizah_\settings.ini"
-    UrlDownloadToFile, %versionURL%, %updateFilePath%
-    
-    ; Membaca versi terbaru dari file
-    IniRead, latestVersion, %updateFilePath%, General, VersionLauncher
-    
+
+    ; Menentukan path file temporary untuk settings.ini
+    tempFilePath := A_Temp . "\settings.ini"
+
+    ; Mendownload file settings.ini ke folder temporary
+    URLDownloadToFile, %versionURL%, %tempFilePath%
+
+    ; Membaca versi terbaru dari file temporary
+    IniRead, latestVersion, %tempFilePath%, General, VersionLauncher
+
+    ; Membaca versi saat ini dari file lokal
+    IniRead, currentVersion, %A_ScriptDir%\_JulianNizah_\settings.ini, General, VersionLauncher
+
     ; Membandingkan versi terbaru dengan versi saat ini
-    if (latestVersion = version) {
-		MsgBox, % "Tersedia pembaruan versi " . latestVersion . ". Aplikasi akan diperbarui."
-		
-		; Menutup aplikasi sebelum melakukan pembaruan
-		Process, Close, ahk_exe %A_ScriptFullPath%
-		
-		; Mendownload file pembaruan ke direktori skrip ini
-		updateFilePath := A_ScriptDir . "\update.zip"
-		UrlDownloadToFile, %updateURL%, %updateFilePath%
-		
-		; Mengekstrak file pembaruan di direktori skrip ini
-		RunWait, %comspec% /c "powershell -command Expand-Archive -Path ""%updateFilePath%"" -DestinationPath ""%A_ScriptDir%"" -Force",, Hide
-		
-		; Menghapus file pembaruan
-		FileDelete, %updateFilePath%
-		
-		; Jalankan kembali aplikasi yang telah diperbarui
-		Run, RE4Launcher.ahk
-		ExitApp
+    if (latestVersion = currentVersion) {
+        PlayRe4()
     } else {
-		PlayRe4()
+        MsgBox, % "Tersedia pembaruan versi " . latestVersion . ". Aplikasi akan diperbarui."
+
+        ; Menutup aplikasi sebelum melakukan pembaruan
+        Process, Close, ahk_exe %A_ScriptFullPath%
+
+        ; Mendownload file pembaruan ke direktori skrip ini
+        updateFilePath := A_ScriptDir . "\update.zip"
+        URLDownloadToFile, %updateURL%, %updateFilePath%
+
+        ; Mengekstrak file pembaruan di direktori skrip ini
+        RunWait, %comspec% /c "powershell -command Expand-Archive -Path ""%updateFilePath%"" -DestinationPath ""%A_ScriptDir%"" -Force",, Hide
+
+        ; Menghapus file pembaruan
+        FileDelete, %updateFilePath%
+		
+		MsgBox, % "Pembaruan telah selesai."
+
+        ; Jalankan kembali aplikasi yang telah diperbarui
+        Run, RE4Launcher.ahk
+        ExitApp
     }
 }
 
-; Panggil fungsi CheckForUpdates saat aplikasi dimulai
+; Memanggil fungsi CheckForUpdates()
 CheckForUpdates()
 
-; Fungsi untuk memeriksa pembaruan
+
+; Fungsi untuk menjalankan re4
 PlayRe4() {
 	; Mengatur jalur direktori tujuan dan symlink
 	saveGameDir := A_ScriptDir . "\_JulianNizah_\SaveGame"

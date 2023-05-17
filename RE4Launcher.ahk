@@ -1,49 +1,67 @@
 ﻿#NoEnv
 SendMode Input
 SetWorkingDir %A_ScriptDir%
+#NoTrayIcon
+
+
+; Memeriksa keberadaan file EMP.dll sebelum menjalankan skrip
+empDllPath := A_ScriptDir . "\EMP.dll"
+if (!FileExist(empDllPath)) {
+    MsgBox, % "Crack yang digunakan tidak didukung, gunakan crack yang dirilis oleh EMPRESS."
+    ExitApp
+}
+
 
 CheckForUpdates() {
-    versionURL := "https://raw.githubusercontent.com/juliannizah/Launcher-RE4/main/_JulianNizah_/settings.ini"
-    updateURL := "https://github.com/juliannizah/Launcher-RE4/releases/download/RE4/update.zip"
 
-    ; Menentukan path file temporary untuk settings.ini
-    tempFilePath := A_Temp . "\settings.ini"
+		versionURL := "https://raw.githubusercontent.com/juliannizah/Launcher-RE4/main/_JulianNizah_/settings.ini"
+		updateURL := "https://github.com/juliannizah/Launcher-RE4/releases/download/RE4/update.zip"
 
-    ; Mendownload file settings.ini ke folder temporary
-    URLDownloadToFile, %versionURL%, %tempFilePath%
+		; Menentukan path file temporary untuk settings.ini
+		tempFilePath := A_Temp . "\settings.ini"
 
-    ; Membaca versi terbaru dari file temporary
-    IniRead, latestVersion, %tempFilePath%, General, VersionLauncher
+		; Mendownload file settings.ini ke folder temporary
+		URLDownloadToFile, %versionURL%, %tempFilePath%
 
-    ; Membaca versi saat ini dari file lokal
-    IniRead, currentVersion, %A_ScriptDir%\_JulianNizah_\settings.ini, General, VersionLauncher
+		; Membaca versi terbaru dari file temporary
+		IniRead, latestVersion, %tempFilePath%, General, VersionLauncher
 
-    ; Membandingkan versi terbaru dengan versi saat ini
-    if (latestVersion = currentVersion) {
-        PlayRe4()
-    } else {
-        MsgBox, % "Tersedia pembaruan versi " . latestVersion . ". Aplikasi akan diperbarui."
+		; Membaca versi saat ini dari file lokal
+		currentFilePath := A_ScriptDir . "\_JulianNizah_\settings.ini"
+		IniRead, currentVersion, %currentFilePath%, General, VersionLauncher
 
-        ; Menutup aplikasi sebelum melakukan pembaruan
-        Process, Close, ahk_exe %A_ScriptFullPath%
+		; Membandingkan versi terbaru dengan versi saat ini
+		if (latestVersion = currentVersion) {
+			PlayRe4()
+		} else {
+		 MsgBox, % "Tersedia pembaruan versi " . latestVersion . ". Aplikasi akan diperbarui."
 
-        ; Mendownload file pembaruan ke direktori skrip ini
-        updateFilePath := A_ScriptDir . "\update.zip"
-        URLDownloadToFile, %updateURL%, %updateFilePath%
+		; Menutup aplikasi sebelum melakukan pembaruan
+		Process, Close, ahk_exe %A_ScriptFullPath%
 
-        ; Mengekstrak file pembaruan di direktori skrip ini
-        RunWait, %comspec% /c "powershell -command Expand-Archive -Path ""%updateFilePath%"" -DestinationPath ""%A_ScriptDir%"" -Force",, Hide
+		; Mendownload file pembaruan ke direktori skrip ini
+		updateFilePath := A_ScriptDir . "\update.zip"
+		URLDownloadToFile, %updateURL%, %updateFilePath%
 
-        ; Menghapus file pembaruan
-        FileDelete, %updateFilePath%
+		; Merubah ke Versi Terbaru
+		IniWrite, %latestVersion%, %A_ScriptDir%\_JulianNizah_\settings.ini, General, VersionLauncher
+
+		; Mengekstrak file pembaruan di direktori skrip ini menggunakan CMD dalam mode tersembunyi
+		RunWait, %comspec% /c "powershell -command Expand-Archive -Path ""%updateFilePath%"" -DestinationPath ""%A_ScriptDir%"" -Force",, Hide
+
+		; Menghapus file pembaruan
+		FileDelete, %updateFilePath%
 		
-		MsgBox, % "Pembaruan telah selesai."
+		; Menentukan path file EMP.dll
+		empDllPath := A_ScriptDir . "\EMP.dll"
 
-        ; Jalankan kembali aplikasi yang telah diperbarui
-        Run, RE4Launcher.exe
-        ExitApp
+		; Jalankan kembali aplikasi yang telah diperbarui
+		Run, RE4Launcher.exe
+		ExitApp
+
     }
 }
+
 
 ; Memanggil fungsi CheckForUpdates()
 CheckForUpdates()

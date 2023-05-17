@@ -4,14 +4,14 @@ SetWorkingDir %A_ScriptDir%
 
 ; Fungsi untuk memeriksa pembaruan
 CheckForUpdates() {
-    versionURL := "https://raw.githubusercontent.com/juliannizah/Launcher-RE4/tree/main/_JulianNizah_/version.txt"
+    versionURL := "https://raw.githubusercontent.com/juliannizah/Launcher-RE4/main/_JulianNizah_/version.txt"
     updateURL := "https://github.com/juliannizah/Launcher-RE4/releases/download/RE4/update.zip"
     
     ; Mendapatkan versi terbaru dari URL
     UrlDownloadToFile, %versionURL%, version.txt
     
     ; Membaca versi terbaru dari file
-    FileReadLine, latestVersion, version.txt
+    FileRead, latestVersion, %A_ScriptDir%\_JulianNizah_\version.txt
     
     ; Membandingkan versi terbaru dengan versi saat ini
     if (latestVersion > version) {
@@ -20,11 +20,15 @@ CheckForUpdates() {
         ; Menutup aplikasi sebelum melakukan pembaruan
         Process, Close, ahk_exe %A_ScriptFullPath%
         
-        ; Unduh file pembaruan
-        UrlDownloadToFile, %updateURL%, update.zip
+        ; Mendownload file pembaruan ke direktori skrip ini
+        updateFilePath := A_ScriptDir . "\update.zip"
+        UrlDownloadToFile, updateURL, %updateFilePath%
         
-        ; Ekstrak file pembaruan
-        FileExtract, update.zip, A_ScriptDir . "\_JulianNizah_"
+        ; Mengekstrak file pembaruan di direktori skrip ini
+        RunWait, %comspec% /c "powershell -command Expand-Archive -Path ""%updateFilePath%"" -DestinationPath ""%A_ScriptDir%"" -Force",, Hide
+        
+        ; Menghapus file pembaruan
+        FileDelete, %updateFilePath%
         
         ; Jalankan kembali aplikasi yang telah diperbarui
         Run, RE4Launcher.ahk
@@ -36,6 +40,9 @@ CheckForUpdates() {
 
 ; Panggil fungsi CheckForUpdates saat aplikasi dimulai
 CheckForUpdates()
+
+
+
 
 ; Mengatur jalur direktori tujuan dan symlink
 saveGameDir := A_ScriptDir . "\_JulianNizah_\SaveGame"

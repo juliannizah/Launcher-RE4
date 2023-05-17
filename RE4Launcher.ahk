@@ -11,37 +11,36 @@ CheckForUpdates() {
     UrlDownloadToFile, %versionURL%, version.txt
     
     ; Membaca versi terbaru dari file
-    FileRead, latestVersion, %A_ScriptDir%\version.txt
+    FileRead, latestVersion, version.txt
     
     ; Membandingkan versi terbaru dengan versi saat ini
-    if (latestVersion > version) {
-        MsgBox, % "Tersedia pembaruan versi " . latestVersion . ". Aplikasi akan diperbarui."
-        
-        ; Menutup aplikasi sebelum melakukan pembaruan
-        Process, Close, ahk_exe %A_ScriptFullPath%
-        
-        ; Mendownload file pembaruan ke direktori skrip ini
-        updateFilePath := A_ScriptDir . "\update.zip"
-        UrlDownloadToFile, updateURL, %updateFilePath%
-        
-        ; Mengekstrak file pembaruan di direktori skrip ini
-        RunWait, %comspec% /c "powershell -command Expand-Archive -Path ""%updateFilePath%"" -DestinationPath ""%A_ScriptDir%"" -Force",, Hide
-        
-        ; Menghapus file pembaruan
-        FileDelete, %updateFilePath%
-        
-        ; Jalankan kembali aplikasi yang telah diperbarui
-        Run, RE4Launcher.ahk
-        ExitApp
-    } else {
+    if (latestVersion = version) {
         MsgBox, Tidak ada pembaruan tersedia.
+        return
     }
+    
+    MsgBox, % "Tersedia pembaruan versi " . latestVersion . ". Aplikasi akan diperbarui."
+    
+    ; Menutup aplikasi sebelum melakukan pembaruan
+    Process, Close, ahk_exe %A_ScriptFullPath%
+    
+    ; Mendownload file pembaruan ke direktori skrip ini
+    updateFilePath := A_ScriptDir . "\update.zip"
+    UrlDownloadToFile, %updateURL%, %updateFilePath%
+    
+    ; Mengekstrak file pembaruan di direktori skrip ini
+    RunWait, %comspec% /c "powershell -command Expand-Archive -Path ""%updateFilePath%"" -DestinationPath ""%A_ScriptDir%"" -Force",, Hide
+    
+    ; Menghapus file pembaruan
+    FileDelete, %updateFilePath%
+    
+    ; Jalankan kembali aplikasi yang telah diperbarui
+    Run, RE4Launcher.ahk
+    ExitApp
 }
 
 ; Panggil fungsi CheckForUpdates saat aplikasi dimulai
 CheckForUpdates()
-
-
 
 
 ; Mengatur jalur direktori tujuan dan symlink
